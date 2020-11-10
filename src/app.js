@@ -6,13 +6,13 @@ const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
 const notefulRouter = require('./noteful-router')
 const validateBearerToken = require('./validate-bearer-token')
-const ArticlesService = require('./articles-service')
+const ArticlesService = require('./noteful-service')
 
 
 const app = express()
-app.use(notefulRouter)
 app.use(cors())
-app.use(validateBearerToken)
+app.use(notefulRouter)
+//app.use(validateBearerToken)
 app.use(helmet())
 
 

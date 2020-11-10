@@ -16,6 +16,9 @@ notefulRouter
 
 notefulRouter
   .route('/folders')
+  .get((req,res)=>{
+    res.json(folders);
+  })
   .post(bodyParser, (req, res) => {
     const {name} = req.body
 
@@ -45,6 +48,9 @@ notefulRouter
     
 notefulRouter
 .route('/notes')
+.get((req,res)=>{
+    res.json(notes);
+  })
 .post(bodyParser, (req, res) => {
   const {name, content, folderId, modified} = req.body
 
