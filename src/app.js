@@ -9,18 +9,13 @@ const validateBearerToken = require("./validate-bearer-token");
 const notefulService = require("./noteful-service");
 
 const app = express();
-app.use(cors());
-app.use(notefulRouter);
+const morganOption = NODE_ENV === "production" ? "tiny" : "common";
 //app.use(validateBearerToken)
 app.use(helmet());
-
-// console.log('\n\n=== Going to call notefulService, all haNDS BEHIOND glass please');
-// notefulService.getAllFolders(knexInstance).then(results => console.log(results));
-// console.log('\n\n===')
-
-const morganOption = NODE_ENV === "production" ? "tiny" : "common";
-
 app.use(morgan(morganOption));
+app.use(cors());
+app.use(notefulRouter);
+
 
 app.use(function errorHandler(error, req, res, next) {
   let response;
