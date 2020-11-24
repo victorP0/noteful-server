@@ -1,6 +1,8 @@
-const knex = require('knex')
-const knexInstance = knex({
-    client: 'pg',
-    connection: process.env.DB_URL  })
+const knex = require("knex");
 
-console.log('knex and driver installed correctly');
+const knexInstance = knex({
+  client: "postgres",
+  connection: process.env.DATABASE_URL,
+});
+
+console.log("knex and driver installed correctly");

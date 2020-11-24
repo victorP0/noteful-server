@@ -1,14 +1,17 @@
 CREATE DATABASE noteful;
 
+drop table if EXISTS folders CASCADE;
+drop table if exists notes ;
+
 CREATE TABLE folders(
-    folder_id SERIAL PRIMARY KEY,
+    id VARCHAR (100) PRIMARY KEY,
     name TEXT NOT NULL
 );
 
 CREATE TABLE notes(
-    note_id SERIAL PRIMARY KEY,
+    id VARCHAR (100) PRIMARY KEY,
     name TEXT NOT NULL, 
     content TEXT NOT NULL, 
-    folder_id INTEGER references folders(folder_id), 
+    folderId VARCHAR (100) references folders(id), 
     modified TEXT
 );

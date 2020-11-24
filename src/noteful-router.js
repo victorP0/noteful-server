@@ -1,100 +1,132 @@
-const express = require('express')
-const { v4: uuid } = require('uuid');
-const notefulRouter = express.Router()
-const bodyParser = express.json()
+const express = require("express");
+const { v4: uuid } = require("uuid");
+const notefulRouter = express.Router();
+const bodyParser = express.json();
+const logger = require("./logger");
+const notefulService = require("./noteful-service")
+const knexbase = require("knex");
 
-const folders = [];
-const notes = [];
+// const folders = [];
+// const notes = [];
+
+const knex = knexbase({
+  client: "pg",
+  connection: process.env.DATABASE_URL,
+});
+
+notefulRouter.route("/").get((req, res, next) => {
+  notefulService
+    .getAllFolders(knex)
+    .then((folders) => {
+      res.json(folders);
+    })
+    .catch(next);
+  notefulService
+    .getAllNotes(knex)
+    .then((notes) => {
+      res.json(notes);
+    })
+    .catch(next);
+  res.send("loaded");
+});
 
 notefulRouter
-  .route('/')
-  .get((req, res) => {
-    res.json(folders);
-    res.json(notes);
-    res.send('loaded')
-  })
-
-notefulRouter
-  .route('/folders')
-  .get((req,res)=>{
-    res.json(folders);
-  })
-  .post(bodyParser, (req, res) => {
-    const {name} = req.body
+  .route("/folders").get((req, res, next) => {
+    notefulService
+      .getAllFolders(knex)
+      .then((folders) => {
+        res.json(folders);
+      })})
+  .post(bodyParser, (req, res, next) => {
+    const { name } = req.body;
 
     if (!name) {
-      return res
-        .status(400)
-        .send('Folder name required');
+      return res.status(400).send("Folder name required");
     }
 
     const newFolder = {
-      id: uuid (),
-      name
+      id: uuid(),
+      name,
     };
 
-    folders.push(newFolder)
+    //folders.push(newFolder);
 
-    logger.info(`folder with id ${id} not found.`);
+    notefulService
+      .insertFolder(knex, newFolder)
+      .then((folder) => {
+        res.status(201)
+        .location(`/folders/${newFolder.id}`)
+        .json(newFolder)
+        .send("Folder created");
+      })
+      .catch(next);
+  });
 
-    res
-    .status(201)
-    .location(`http://localhost:8000/folders/${id}`)
-    .json({id: id});
-   
-    res.send ('Folder created')
-     })
-
-    
 notefulRouter
-.route('/notes')
-.get((req,res)=>{
+  .route("/notes").get((req, res, next) => {
+    notefulService
+      .getAllNotes(knex)
+      .then((notes) => {
+        res.json(notes);
+      })})
+  .post(bodyParser, (req, res, next) => {
+    const { name, content, folderId, modified } = req.body;
+
+    if (!name) {
+      return res.status(400).send("Note name required");
+    }
+
+    if (!content) {
+      return res.status(400).send("Content required");
+    }
+
+    let id = uuid();
+
+    const folderid = folderId
+
+    const newNote = { id, name, content, folderid, modified };
+
+    //notes.push(newNote);
+
+    notefulService
+      .insertNote(knex, newNote)
+      .then((note) => {
+        res.status(201)
+        .location(`/folder/${newNote.folderid}`).json(newNote).send("Note created");
+      })
+      .catch(next);
+  });
+
+notefulRouter.route("/folder/:folderId")
+.get((req,res,next)=>{
+  notefulService.getFolder(knex, folderId)
+  .then((notes) => {
     res.json(notes);
   })
-.post(bodyParser, (req, res) => {
-  const {name, content, folderId, modified} = req.body
+  .catch(next);
+})
+.delete((req, res, next) => {
+  const { folderId } = req.params;
 
-  if (!name) {
-    return res
-      .status(400)
-      .send('Note name required');
-  }
+  notefulService
+    .deleteFolder(knex, folderId)
+    .then(() => {
+      res.status(204).send("Deleted").end();
+    })
+    .catch(next);
+});
 
-  if (!content) {
-    return res
-      .status(400)
-      .send('Content required');
-  }
+notefulRouter.route("/notes/:noteId").delete((req, res, next) => {
+  const { noteId } = req.params;
 
-const newNote = {id : uuid (), name, content, folderId, modified}
-
-notes.push(newNote)
-
-logger.info(`Note with id ${id} not found.`);
-
-res
-  .status(201)
-  .location(`http://localhost:8000/notes/${id}`)
-  .json({id: id});
-
-res.send ('Note created')
+  notefulService.deleteNote(knex, noteId)
+  .then(() => {
+    res
+    .status(200)
+    .json({})
+    .send("Deleted");
   })
-  
-notefulRouter
-  .route('/notes/:noteId')
-  .delete((req,res)=>{
+  .catch(next);;
+});
 
-    const { id } = req.params;
-    const index = notes.findIndex(n => n.id === id);
-    users.splice(index, 1);
-    
-    logger.info(`Note with id ${id} deleted.`);
-  
-    res     
-      .status(204)
-       .end();
-  
-    res.send('Deleted');
-  })
-
-module.exports = notefulRouter
+module.exports = notefulRouter;

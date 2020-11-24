@@ -1,9 +1,15 @@
-const app = require('../src/app')
+const NotefulService = require("../src/noteful-service");
+const { expect } = require("chai");
+const supertest = require("supertest");
+const knex = require("knex");
 
-describe('App', () => {
-  it('GET / responds with 200 containing "Hello, world!"', () => {
-    return supertest(app)
-      .get('/')
-      .expect(200, 'Hello, world!')
-  })
-})
+describe(`Note service object`, function () {
+  let db;
+  before(() => {
+    db = knex({
+      client: "postgres",
+      connection: process.env.TEST_DB_URL,
+    });
+  });
+});
+
