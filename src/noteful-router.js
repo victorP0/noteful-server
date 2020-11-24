@@ -6,9 +6,6 @@ const logger = require("./logger");
 const notefulService = require("./noteful-service")
 const knexbase = require("knex");
 
-// const folders = [];
-// const notes = [];
-
 const knex = knexbase({
   client: "pg",
   connection: process.env.DATABASE_URL,
