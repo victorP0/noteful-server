@@ -8,12 +8,12 @@ const notefulRouter = require("./noteful-router");
 const validateBearerToken = require("./validate-bearer-token");
 const notefulService = require("./noteful-service");
 
-const app = express();
-const morganOption = NODE_ENV === "production" ? "tiny" : "common";
 //app.use(validateBearerToken)
 app.use(helmet());
 app.use(morgan(morganOption));
 app.use(cors());
+const app = express();
+const morganOption = NODE_ENV === "production" ? "tiny" : "common";
 app.use(notefulRouter);
 
 
